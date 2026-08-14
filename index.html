@@ -21,9 +21,9 @@
     font-family:"Kaiti SC","STKaiti","KaiTi","Noto Serif SC","Songti SC","SimSun",serif;
     background:var(--paper);
     color:var(--ink);
-    overflow-x:hidden;
+    overflow:hidden;
   }
-  #app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;}
+  #app{max-width:480px;margin:0 auto;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;}
 
   /* ============ 页面容器 ============ */
   .page{display:none;min-height:100vh;position:relative;}
@@ -452,7 +452,19 @@ var scores = {luxun:0, zhangailing:0, wangzengqi:0, yuhua:0, wangxiaobo:0};
 function showPage(id){
   document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});
   document.getElementById(id).classList.add("active");
+  scrollTopReset();
+}
+
+function scrollTopReset(){
+  var app = document.getElementById("app");
+  app.scrollTop = 0;
   window.scrollTo(0,0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  setTimeout(function(){
+    app.scrollTop = 0;
+    window.scrollTo(0,0);
+  }, 120);
 }
 
 /* ---------- 封面 ---------- */
