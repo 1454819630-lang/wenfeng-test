@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="测测你的文字气质，是哪位作家的手笔 · 趣味测试">
+<title>测测你的文字气质像哪位作家｜趣味测试</title>
+<style>
+  :root{
+    --paper:#f6f1e6;          /* 宣纸 */
+    --ink:#33312b;            /* 墨色 */
+    --ink-soft:#6b665a;
+    --accent:#3f5a7a;         /* 黛蓝 */
+    --accent-deep:#2c4560;
+    --line:rgba(51,49,43,.22);
+    --gold:#c9a86a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:"Kaiti SC","STKaiti","KaiTi","Noto Serif SC","Songti SC","SimSun",serif;
+    background:var(--paper);
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+  #app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;}
+
+  /* ============ 页面容器 ============ */
+  .page{display:none;min-height:100vh;position:relative;}
+  .page.active{display:block;animation:pageIn .5s ease both;}
+  @keyframes pageIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ============ 封面 ============ */
+  #cover{
+    background:
+      radial-gradient(ellipse at 70% 18%, rgba(201,168,106,.14) 0%, transparent 50%),
+      radial-gradient(ellipse at 15% 85%, rgba(63,90,122,.25) 0%, transparent 45%),
+      linear-gradient(168deg, #20242e 0%, #2a3040 48%, #35404e 100%);
+    color:#ece3cf;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:48px 28px 56px;
+    overflow:hidden;
+  }
+  .cover-bg{position:absolute;inset:0;pointer-events:none;}
+  .moon{
+    position:absolute;top:9%;right:14%;
+    width:104px;height:104px;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%, #f4ecd6, #e3d2a6);
+    opacity:.85;box-shadow:0 0 70px 18px rgba(244,236,214,.16);
+  }
+  .cover-mountains{position:absolute;bottom:0;left:0;width:100%;}
+  .cover-ink{position:absolute;top:14%;left:6%;width:120px;opacity:.8;}
+  .cover-inner{position:relative;z-index:2;}
+  .cover-brand{
+    font-size:13px;letter-spacing:6px;color:var(--gold);
+    border:1px solid rgba(201,168,106,.4);
+    padding:6px 16px 6px 22px;border-radius:2px;
+    opacity:0;animation:fadeIn 1s .2s ease forwards;
+  }
+  .cover-title{
+    font-size:52px;font-weight:400;letter-spacing:12px;text-indent:12px;
+    margin:42px 0 6px;text-shadow:0 4px 30px rgba(0,0,0,.5);
+    opacity:0;animation:fadeIn 1s .5s ease forwards;
+  }
+  .cover-sub{
+    font-size:19px;letter-spacing:8px;text-indent:8px;color:#d8ccb2;
+    margin-bottom:8px;opacity:0;animation:fadeIn 1s .8s ease forwards;
+  }
+  .cover-desc{
+    font-size:13px;letter-spacing:4px;color:rgba(236,227,207,.6);
+    margin:26px 0 44px;line-height:1.9;
+    opacity:0;animation:fadeIn 1s 1s ease forwards;
+  }
+  .cover-btn{
+    font-family:inherit;font-size:18px;letter-spacing:8px;text-indent:8px;
+    color:#f6f0e2;background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+    border:none;border-radius:4px;padding:15px 52px;
+    box-shadow:0 6px 24px rgba(44,69,96,.45);
+    cursor:pointer;transition:transform .2s, box-shadow .2s;
+    opacity:0;animation:fadeIn 1s 1.3s ease forwards;
+  }
+  .cover-btn:active{transform:scale(.96);box-shadow:0 3px 12px rgba(44,69,96,.45);}
+  .cover-tip{
+    position:absolute;bottom:22px;font-size:11px;letter-spacing:3px;
+    color:rgba(236,227,207,.4);
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ============ 答题页 ============ */
+  #quiz{
+    background:
+      radial-gradient(ellipse at 100% 0%, rgba(63,90,122,.05) 0%, transparent 40%),
+      var(--paper);
+    padding:0 0 40px;
+  }
+  .quiz-deco{position:absolute;top:70px;right:-30px;width:170px;opacity:.07;pointer-events:none;}
+  .quiz-top{
+    position:sticky;top:0;z-index:10;
+    background:linear-gradient(180deg, rgba(246,241,230,.97), rgba(246,241,230,.85));
+    backdrop-filter:blur(4px);
+    padding:16px 20px 12px;
+    border-bottom:1px solid var(--line);
+  }
+  .quiz-bar{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--ink-soft);}
+  .quiz-back{
+    background:none;border:none;font-family:inherit;font-size:15px;color:var(--ink-soft);
+    cursor:pointer;padding:4px 10px 4px 0;letter-spacing:2px;
+  }
+  .quiz-back:active{color:var(--accent);}
+  .quiz-progress-track{height:2px;background:rgba(51,49,43,.12);margin-top:10px;border-radius:2px;overflow:hidden;}
+  .quiz-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .45s ease;}
+
+  .quiz-body{padding:34px 24px 0;}
+  .quiz-no{
+    font-size:14px;letter-spacing:4px;color:var(--accent);
+    display:flex;align-items:center;gap:12px;margin-bottom:20px;
+  }
+  .quiz-no::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent);}
+  .quiz-q{
+    font-size:20px;line-height:1.75;font-weight:400;
+    margin-bottom:28px;letter-spacing:1px;
+  }
+  .quiz-opts{display:flex;flex-direction:column;gap:12px;}
+  .opt{
+    font-family:inherit;font-size:15px;line-height:1.6;text-align:left;
+    color:var(--ink);background:#fbf7ec;
+    border:1px solid var(--line);border-radius:6px;
+    padding:13px 17px;cursor:pointer;letter-spacing:.5px;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .opt:active{transform:scale(.985);}
+  .opt.sel{
+    border-color:var(--accent);
+    background:linear-gradient(180deg, rgba(63,90,122,.08), rgba(63,90,122,.03));
+    box-shadow:0 0 0 1px var(--accent);
+  }
+  .quiz-foot{text-align:center;margin-top:34px;}
+  .quiz-next{
+    font-family:inherit;font-size:16px;letter-spacing:6px;text-indent:6px;
+    color:var(--paper);background:var(--accent);
+    border:none;border-radius:4px;padding:13px 44px;cursor:pointer;
+    box-shadow:0 4px 16px rgba(44,69,96,.3);
+    opacity:.45;pointer-events:none;transition:opacity .25s, transform .15s;
+  }
+  .quiz-next.on{opacity:1;pointer-events:auto;}
+  .quiz-next.on:active{transform:scale(.96);}
+
+  /* ============ 结果页 ============ */
+  #result{background:var(--paper);padding-bottom:48px;}
+  .res-banner{
+    padding:44px 24px 36px;text-align:center;color:#f6f0e2;
+    background:
+      radial-gradient(ellipse at 50% -20%, rgba(255,255,255,.18), transparent 60%),
+      linear-gradient(160deg, var(--res-c1,#4e6b5e), var(--res-c2,#3a5247));
+    position:relative;overflow:hidden;
+  }
+  .res-banner::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:24px;
+    background:var(--paper);border-radius:50% 50% 0 0 / 100% 100% 0 0;
+    transform:translateY(50%);
+  }
+  .res-label{font-size:13px;letter-spacing:8px;text-indent:8px;color:rgba(246,240,226,.75);margin-bottom:18px;}
+  .res-name-row{display:flex;align-items:center;justify-content:center;gap:16px;}
+  .res-name{font-size:44px;letter-spacing:10px;text-indent:10px;font-weight:400;text-shadow:0 3px 20px rgba(0,0,0,.3);}
+  .res-seal{
+    width:44px;height:44px;background:#f6f0e2;color:var(--res-c2,#6b543a);
+    display:flex;align-items:center;justify-content:center;
+    font-size:24px;border-radius:5px;box-shadow:0 2px 10px rgba(0,0,0,.25);
+  }
+  .res-tag{
+    display:inline-block;margin-top:16px;
+    font-size:13px;letter-spacing:3px;color:rgba(246,240,226,.92);
+    border:1px solid rgba(246,240,226,.5);border-radius:20px;
+    padding:5px 16px 5px 19px;
+  }
+  .res-poem{
+    margin-top:14px;font-size:16px;letter-spacing:2px;color:rgba(246,240,226,.9);
+    font-style:italic;
+  }
+  .res-poem-src{font-size:11px;letter-spacing:2px;color:rgba(246,240,226,.6);margin-top:6px;}
+
+  .res-body{padding:30px 24px 0;position:relative;}
+  .res-card{
+    background:#fbf7ec;border:1px solid var(--line);border-radius:8px;
+    padding:20px 22px;margin-bottom:16px;
+    opacity:0;animation:cardIn .6s ease forwards;
+  }
+  .res-card:nth-child(1){animation-delay:.15s;}
+  .res-card:nth-child(2){animation-delay:.3s;}
+  .res-card:nth-child(3){animation-delay:.45s;}
+  .res-card:nth-child(4){animation-delay:.6s;}
+  @keyframes cardIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .res-card-title{
+    display:flex;align-items:center;gap:8px;
+    font-size:14px;letter-spacing:3px;color:var(--accent);
+    margin-bottom:10px;
+  }
+  .res-card-title::before{content:"";width:14px;height:14px;border:1px solid var(--accent);transform:rotate(45deg);}
+  .res-card p{font-size:16px;line-height:1.85;color:var(--ink);}
+  .res-card .p-gift{font-size:17px;color:var(--accent-deep);line-height:1.9;}
+
+  .res-actions{text-align:center;margin-top:26px;opacity:0;animation:cardIn .6s .75s ease forwards;}
+  .res-share-tip{font-size:12px;color:var(--ink-soft);letter-spacing:2px;margin-bottom:18px;}
+  .res-again{
+    font-family:inherit;font-size:15px;letter-spacing:5px;text-indent:5px;
+    color:var(--accent);background:none;border:1px solid var(--accent);
+    border-radius:4px;padding:11px 36px;cursor:pointer;
+    transition:background .2s, color .2s;
+  }
+  .res-again:active{background:var(--accent);color:#f6f0e2;}
+
+  .res-footer{
+    margin-top:34px;padding-top:20px;text-align:center;
+    border-top:1px dashed var(--line);
+    font-size:13px;color:var(--ink-soft);letter-spacing:2px;line-height:2;
+    opacity:0;animation:cardIn .6s .9s ease forwards;
+  }
+  .res-footer b{color:var(--accent);font-weight:400;}
+  .res-disclaimer{margin-top:10px;font-size:11px;color:rgba(107,102,90,.6);letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= 封面 ================= -->
+  <section id="cover" class="page active">
+    <div class="cover-bg">
+      <div class="moon"></div>
+      <svg class="cover-ink" viewBox="0 0 120 160" fill="none">
+        <path d="M60 12 C58 50 40 80 20 118" stroke="#e8dcc2" stroke-width="2.2" opacity=".5"/>
+        <path d="M60 30 C66 55 80 70 88 96" stroke="#e8dcc2" stroke-width="1.8" opacity=".4"/>
+        <circle cx="20" cy="118" r="7" fill="#e8dcc2" opacity=".55"/>
+        <circle cx="14" cy="104" r="5" fill="#e8dcc2" opacity=".4"/>
+        <circle cx="88" cy="96" r="6" fill="#e8dcc2" opacity=".5"/>
+      </svg>
+      <svg class="cover-mountains" viewBox="0 0 1440 320" preserveAspectRatio="none">
+        <path d="M0 250 C220 150 420 210 640 170 C880 125 1080 200 1440 150 L1440 320 L0 320 Z" fill="#0c0e16" opacity=".5"/>
+        <path d="M0 285 C300 200 620 250 900 215 C1150 185 1300 235 1440 215 L1440 320 L0 320 Z" fill="#0c0e16" opacity=".35"/>
+      </svg>
+    </div>
+    <div class="cover-inner">
+      <div class="cover-brand">不慌不茫 · 作家系列</div>
+      <h1 class="cover-title">文字气质</h1>
+      <div class="cover-sub">测测你像哪位中国作家</div>
+      <div class="cover-desc">
+        拾问 · 见你的笔锋与心性<br>
+        趣味测试 · 仅供参考
+      </div>
+      <button class="cover-btn" onclick="startQuiz()">开始测试</button>
+    </div>
+    <div class="cover-tip">你的笔，自有它的来处</div>
+  </section>
+
+  <!-- ================= 答题页 ================= -->
+  <section id="quiz" class="page">
+    <svg class="quiz-deco" viewBox="0 0 120 160" fill="none">
+      <path d="M60 12 C58 50 40 80 20 118" stroke="#33312b" stroke-width="2.2"/>
+      <path d="M60 30 C66 55 80 70 88 96" stroke="#33312b" stroke-width="1.8"/>
+      <circle cx="20" cy="118" r="7" fill="#33312b"/>
+      <circle cx="14" cy="104" r="5" fill="#33312b"/>
+      <circle cx="88" cy="96" r="6" fill="#33312b"/>
+    </svg>
+    <div class="quiz-top">
+      <div class="quiz-bar">
+        <button class="quiz-back" id="quizBack" onclick="prevQ()">‹ 上一问</button>
+        <span id="quizNo">第壹问 / 共拾问</span>
+      </div>
+      <div class="quiz-progress-track"><div class="quiz-progress-fill" id="quizProgress"></div></div>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-no" id="quizQno">壹 ·</div>
+      <div class="quiz-q" id="quizQ"></div>
+      <div class="quiz-opts" id="quizOpts"></div>
+      <div class="quiz-foot">
+        <button class="quiz-next" id="quizNext" onclick="nextQ()">下一问</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 结果页 ================= -->
+  <section id="result" class="page">
+    <div class="res-banner" id="resBanner">
+      <div class="res-label">测 得 结 果</div>
+      <div class="res-name-row">
+        <div class="res-name" id="resName"></div>
+        <div class="res-seal" id="resSeal"></div>
+      </div>
+      <div class="res-tag" id="resTag"></div>
+      <div class="res-poem" id="resPoem"></div>
+      <div class="res-poem-src" id="resPoemSrc"></div>
+    </div>
+    <div class="res-body">
+      <div class="res-card"><div class="res-card-title">文风签名</div><p id="resCore"></p></div>
+      <div class="res-card"><div class="res-card-title">代表作</div><p id="resRole"></p></div>
+      <div class="res-card"><div class="res-card-title">给你的写作处方</div><p class="p-gift" id="resGift"></p></div>
+      <div class="res-actions">
+        <div class="res-share-tip">截图分享，看看谁的笔和你同出一脉</div>
+        <button class="res-again" onclick="restart()">再 测 一 次</button>
+      </div>
+      <div class="res-footer">
+        测出你的作家属性？送你一份「作家入门书单」· 公众号 <b>不慌不茫</b><br>
+        <span class="res-disclaimer">趣味测试，结果仅供参考</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============ 题库：A→鲁迅 B→张爱玲 C→汪曾祺 D→余华 E→王小波 ============ */
+var QUESTIONS = [
+  {q:"今天想发一条朋友圈，你更倾向怎么配文？",
+   opts:[
+     {t:"一句话点破，比如：有些热闹，与你无关", p:"luxun"},
+     {t:"借个物件打比方，比如：今天的云，像一封没寄出的信", p:"zhangailing"},
+     {t:"记一件小事，比如：路过菜市场，买了三根黄瓜，摊主多送了一根", p:"wangzengqi"},
+     {t:"就几个字，比如：今天。走了很远的路。", p:"yuhua"},
+     {t:"带点自嘲的幽默，比如：又加班到深夜，社畜的浪漫大抵如此", p:"wangxiaobo"}
+   ]},
+  {q:"你写日记或记录心情，通常侧重写什么？",
+   opts:[
+     {t:"对某件事的看法，一针见血地批判", p:"luxun"},
+     {t:"细腻的感受和情绪变化，越细越好", p:"zhangailing"},
+     {t:"吃过的、见过的，那些具体的小事", p:"wangzengqi"},
+     {t:"简单记下发生了什么，几乎不写感受", p:"yuhua"},
+     {t:"一些奇怪的思考和人生道理", p:"wangxiaobo"}
+   ]},
+  {q:"朋友失恋向你倾诉，你会怎么安慰？",
+   opts:[
+     {t:"“这种人，不值得。”", p:"luxun"},
+     {t:"“失去的，从来不属于你；属于你的，自然会留下痕迹。”", p:"zhangailing"},
+     {t:"“来我家，给你下一碗面，吃饱了再说。”", p:"wangzengqi"},
+     {t:"沉默一会儿，说一句“都会过去的”", p:"yuhua"},
+     {t:"“失恋是好事，人生剧本该翻篇了，旧角色该退场了。”", p:"wangxiaobo"}
+   ]},
+  {q:"让你形容一个秋天的傍晚，你会怎么写？",
+   opts:[
+     {t:"“秋天到了，该清算的事情，一件也跑不了。”", p:"luxun"},
+     {t:"“秋阳像一件旧旗袍，温存里透着凉意。”", p:"zhangailing"},
+     {t:"“院子里的柿子红了，晚饭是白粥配咸鸭蛋。”", p:"wangzengqi"},
+     {t:"“风冷。天黑得早。”", p:"yuhua"},
+     {t:"“秋天适合思考，比如人为什么一到秋天就想谈恋爱。”", p:"wangxiaobo"}
+   ]},
+  {q:"一段文字打动你，通常是因为什么？",
+   opts:[
+     {t:"它说破了我不敢说的话", p:"luxun"},
+     {t:"它的比喻太绝了", p:"zhangailing"},
+     {t:"它写的就是普通日子里的光", p:"wangzengqi"},
+     {t:"它很平静，但后劲很大", p:"yuhua"},
+     {t:"它让我开始想一些平时不会想的事", p:"wangxiaobo"}
+   ]},
+  {q:"写“深夜加班回家”，你倾向哪种写法？",
+   opts:[
+     {t:"“路灯下，影子比人诚实。”", p:"luxun"},
+     {t:"“夜像打翻的墨，把整座城都浸透了。”", p:"zhangailing"},
+     {t:"“巷口的面馆还亮着灯，老板问：老样子？”", p:"wangzengqi"},
+     {t:"“凌晨一点。街上没人。走回家。”", p:"yuhua"},
+     {t:"“加班到深夜，想起一位哲学家的话：劳动使人自由。放屁。”", p:"wangxiaobo"}
+   ]},
+  {q:"发了一条动态被人抬杠，你会？",
+   opts:[
+     {t:"直接怼回去，句句在理", p:"luxun"},
+     {t:"不回，但心里已经写好了三千字", p:"zhangailing"},
+     {t:"删了，不值得生气", p:"wangzengqi"},
+     {t:"回一个字：“哦。”", p:"yuhua"},
+     {t:"和他认真辩一辩，还挺享受", p:"wangxiaobo"}
+   ]},
+  {q:"如果要给未来的自己留一句话，你会写？",
+   opts:[
+     {t:"“醒着，别装睡。”", p:"luxun"},
+     {t:"“你终究会明白，有些路只能一个人走。”", p:"zhangailing"},
+     {t:"“好好吃饭，好好睡觉。”", p:"wangzengqi"},
+     {t:"“活着。”", p:"yuhua"},
+     {t:"“希望你仍然有趣，仍然好奇。”", p:"wangxiaobo"}
+   ]},
+  {q:"你觉得自己说话、写作的风格更接近？",
+   opts:[
+     {t:"一针见血，不爱绕弯子", p:"luxun"},
+     {t:"爱打比方，注重氛围感", p:"zhangailing"},
+     {t:"平实自然，像拉家常", p:"wangzengqi"},
+     {t:"话不多，但每句都算数", p:"yuhua"},
+     {t:"爱开玩笑，正经里带点歪理", p:"wangxiaobo"}
+   ]},
+  {q:"下面哪句话，你最认同？",
+   opts:[
+     {t:"“不在沉默中爆发，就在沉默中灭亡。”——鲁迅", p:"luxun"},
+     {t:"“生命是一袭华美的袍，爬满了蚤子。”——张爱玲", p:"zhangailing"},
+     {t:"“四方食事，不过一碗人间烟火。”——汪曾祺", p:"wangzengqi"},
+     {t:"“人是为活着本身而活着。”——余华", p:"yuhua"},
+     {t:"“人的一切痛苦，本质上都是对自己无能的愤怒。”——王小波", p:"wangxiaobo"}
+   ]}
+];
+
+var RESULTS = {
+  luxun:{
+    name:"鲁迅", seal:"迅",
+    tag:"刀笔犀利 · 一针见血",
+    poem:"横眉冷对千夫指，俯首甘为孺子牛", poemSrc:"——《自嘲》",
+    c1:"#43403b", c2:"#2c2a26",
+    core:"你的文字是匕首，是投枪。你不讨好、不绕弯，最擅长一针见血，说出别人不敢说的话。",
+    role:"《呐喊》《彷徨》《朝花夕拾》",
+    gift:"继续做那个敢说真话的人。但记住：匕首可以见血，也可以救人——给犀利留一分温度。",
+    book:"入门推荐《朝花夕拾》：犀利背后的温柔，都藏在这里。"
+  },
+  zhangailing:{
+    name:"张爱玲", seal:"玲",
+    tag:"华丽苍凉 · 金句频出",
+    poem:"生命是一袭华美的袍，爬满了蚤子", poemSrc:"——《天才梦》",
+    c1:"#8a6a3f", c2:"#6e4f2c",
+    core:"你的文字有旗袍的质地——华丽、贴肤，偶尔露出一截苍凉。你天生会打比方，把感受写成金句。",
+    role:"《倾城之恋》《红玫瑰与白玫瑰》",
+    gift:"比喻是你的天分。但别让苍凉成为唯一的底色——华美的袍上，也可以绣新的花。",
+    book:"入门推荐《倾城之恋》：一页一个金句，读完你会爱上自己的文风。"
+  },
+  wangzengqi:{
+    name:"汪曾祺", seal:"祺",
+    tag:"平淡温暖 · 人间烟火",
+    poem:"四方食事，不过一碗人间烟火", poemSrc:"——《食事》",
+    c1:"#5d7a5e", c2:"#46604a",
+    core:"你的文字有家常菜的香味。不炫技、不煽情，但你写的一碗面、一棵菜，都让人想好好生活。",
+    role:"《受戒》《人间草木》",
+    gift:"平静是你最难的本事。可以试着再锋利一点点——人间烟火里，也可以有锋芒。",
+    book:"入门推荐《人间草木》：看看大师怎么写好一朵花、一顿饭。"
+  },
+  yuhua:{
+    name:"余华", seal:"华",
+    tag:"简洁冷峻 · 黑色幽默",
+    poem:"人是为活着本身而活着", poemSrc:"——《活着》",
+    c1:"#8a5a3b", c2:"#6e452c",
+    core:"你的文字是白描的，几乎不用形容词，但每个句号后面都藏着情绪。你写苦难，读者先笑，然后想哭。",
+    role:"《活着》《许三观卖血记》",
+    gift:"极简是你的天赋。但越是冷静的笔，越要配一颗滚烫的心。",
+    book:"入门推荐《活着》：三小时读完，一辈子忘不掉。"
+  },
+  wangxiaobo:{
+    name:"王小波", seal:"波",
+    tag:"理性思辨 · 有趣灵魂",
+    poem:"人的一切痛苦，本质上都是对自己无能的愤怒", poemSrc:"——《沉默的大多数》",
+    c1:"#3f5a7a", c2:"#2c4560",
+    core:"你的文字里有幽默、有思辨，还有一点不驯服的野性。你追求的不是正确，是有趣。",
+    role:"《黄金时代》《沉默的大多数》",
+    gift:"有趣是你的护城河。继续对世界保持好奇，但别让聪明变成刻薄。",
+    book:"入门推荐《沉默的大多数》：在有趣里，读到你自己。"
+  }
+};
+
+var NUM_CN = ["零","壹","贰","叁","肆","伍","陆","柒","捌","玖","拾"];
+
+var idx = 0;
+var scores = {luxun:0, zhangailing:0, wangzengqi:0, yuhua:0, wangxiaobo:0};
+
+function showPage(id){
+  document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+/* ---------- 封面 ---------- */
+function startQuiz(){
+  idx = 0;
+  scores = {luxun:0, zhangailing:0, wangzengqi:0, yuhua:0, wangxiaobo:0};
+  renderQ();
+  showPage("quiz");
+}
+
+/* ---------- 答题 ---------- */
+function renderQ(){
+  var q = QUESTIONS[idx];
+  document.getElementById("quizNo").textContent = "第"+NUM_CN[idx+1]+"问 / 共拾问";
+  document.getElementById("quizQno").textContent = NUM_CN[idx+1]+" ·";
+  document.getElementById("quizQ").textContent = q.q;
+  document.getElementById("quizProgress").style.width = (idx/QUESTIONS.length*100)+"%";
+
+  var wrap = document.getElementById("quizOpts");
+  wrap.innerHTML = "";
+  q.opts.forEach(function(o, i){
+    var b = document.createElement("button");
+    b.className = "opt";
+    b.textContent = o.t;
+    b.setAttribute("data-p", o.p);
+    b.onclick = function(){ pick(o.p, b); };
+    wrap.appendChild(b);
+  });
+  document.getElementById("quizNext").classList.remove("on");
+  document.getElementById("quizNext").textContent = (idx === QUESTIONS.length-1) ? "查看结果" : "下一问";
+  document.getElementById("quizBack").style.visibility = (idx===0) ? "hidden" : "visible";
+}
+
+function pick(p, el){
+  var opts = document.querySelectorAll(".opt");
+  for(var i=0;i<opts.length;i++){ opts[i].classList.remove("sel"); }
+  el.classList.add("sel");
+  el._p = p;
+  document.getElementById("quizNext").classList.add("on");
+}
+
+function nextQ(){
+  var sel = document.querySelector(".opt.sel");
+  if(!sel) return;
+  scores[sel._p]++;
+  if(idx < QUESTIONS.length-1){
+    idx++;
+    renderQ();
+  } else {
+    showResult();
+  }
+}
+
+function prevQ(){
+  if(idx>0){ idx--; renderQ(); }
+}
+
+/* ---------- 结果 ---------- */
+function showResult(){
+  var max = -1, resKey = "luxun";
+  for(var k in scores){
+    if(scores[k] > max){ max = scores[k]; resKey = k; }
+  }
+  var r = RESULTS[resKey];
+  var b = document.getElementById("resBanner");
+  b.style.setProperty("--res-c1", r.c1);
+  b.style.setProperty("--res-c2", r.c2);
+  document.getElementById("resName").textContent = r.name;
+  document.getElementById("resSeal").textContent = r.seal;
+  document.getElementById("resTag").textContent = r.tag;
+  document.getElementById("resPoem").textContent = "「"+r.poem+"」";
+  document.getElementById("resPoemSrc").textContent = r.poemSrc;
+  document.getElementById("resCore").textContent = r.core;
+  document.getElementById("resRole").textContent = r.role;
+  document.getElementById("resGift").textContent = r.gift + " " + r.book;
+  showPage("result");
+}
+
+function restart(){
+  startQuiz();
+}
+</script>
+</body>
+</html>
