@@ -21,9 +21,9 @@
     font-family:"Kaiti SC","STKaiti","KaiTi","Noto Serif SC","Songti SC","SimSun",serif;
     background:var(--paper);
     color:var(--ink);
-    overflow:hidden;
+    overflow-x:hidden;
   }
-  #app{max-width:480px;margin:0 auto;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;}
+  #app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;}
 
   /* ============ 页面容器 ============ */
   .page{display:none;min-height:100vh;position:relative;}
@@ -221,6 +221,7 @@
 </head>
 <body>
 <div id="app">
+  <a id="top"></a>
 
   <!-- ================= 封面 ================= -->
   <section id="cover" class="page active">
@@ -456,15 +457,22 @@ function showPage(id){
 }
 
 function scrollTopReset(){
-  var app = document.getElementById("app");
-  app.scrollTop = 0;
+  /* 锚点强制跳转：浏览器原生导航，任何环境都可靠 */
+  try{
+    if(window.location.hash === "#top"){
+      window.location.hash = "";
+    }
+    window.location.hash = "top";
+  }catch(e){}
+  /* 多重 scrollTo 兜底 */
   window.scrollTo(0,0);
   document.documentElement.scrollTop = 0;
   document.body.scrollTop = 0;
   setTimeout(function(){
-    app.scrollTop = 0;
     window.scrollTo(0,0);
-  }, 120);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, 150);
 }
 
 /* ---------- 封面 ---------- */
